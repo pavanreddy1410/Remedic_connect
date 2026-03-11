@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+httpx
+python-dotenv
+slowapi
+loguru
+python-multipart

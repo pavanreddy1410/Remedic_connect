@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pymongo
+python-dotenv
+bcrypt
+python-jose
+pydantic
+pandas
+scikit-learn
+slowapi
+loguru
+python-multipart
+httpx

@@ -1,0 +1,102 @@
+version: "3.9"
+services:
+  mongo:
+    image: mongo:7
+    container_name: remedic_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  auth_service:
+    build: ./backend/auth_service
+    environment:
+      - MONGO_URL=mongodb://mongo:27017
+      - DATABASE_NAME=remedic_connect
+      - SECRET_KEY=change_me
+    ports:
+      - "8001:8000"
+    depends_on: [mongo]
+
+  patient_service:
+    build: ./backend/patient_service
+    environment:
+      - MONGO_URL=mongodb://mongo:27017
+      - DATABASE_NAME=remedic_connect
+      - SECRET_KEY=change_me
+    ports:
+      - "8002:8000"
+    depends_on: [mongo]
+
+  lab_service:
+    build: ./backend/lab_service
+    environment:
+      - MONGO_URL=mongodb://mongo:27017
+      - DATABASE_NAME=remedic_connect
+      - SECRET_KEY=change_me
+    ports:
+      - "8003:8000"
+    volumes:
+      - reports_data:/app/reports
+    depends_on: [mongo]
+
+  pharmacy_service:
+    build: ./backend/pharmacy_service
+    environment:
+      - MONGO_URL=mongodb://mongo:27017
+      - DATABASE_NAME=remedic_connect
+      - SECRET_KEY=change_me
+    ports:
+      - "8004:8000"
+    depends_on: [mongo]
+
+  ai_service:
+    build: ./backend/ai_service
+    environment:
+      - MONGO_URL=mongodb://mongo:27017
+      - DATABASE_NAME=remedic_connect
+      - SECRET_KEY=change_me
+    ports:
+      - "8005:8000"
+    depends_on: [mongo]
+
+  admin_service:
+    build: ./backend/admin_service
+    environment:
+      - MONGO_URL=mongodb://mongo:27017
+      - DATABASE_NAME=remedic_connect
+      - SECRET_KEY=change_me
+    ports:
+      - "8006:8000"
+    depends_on: [mongo]
+
+  api_gateway:
+    build: ./backend/api_gateway
+    environment:
+      - AUTH_SERVICE_URL=http://auth_service:8000
+      - PATIENT_SERVICE_URL=http://patient_service:8000
+      - LAB_SERVICE_URL=http://lab_service:8000
+      - PHARMACY_SERVICE_URL=http://pharmacy_service:8000
+      - AI_SERVICE_URL=http://ai_service:8000
+      - ADMIN_SERVICE_URL=http://admin_service:8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      - auth_service
+      - patient_service
+      - lab_service
+      - pharmacy_service
+      - ai_service
+      - admin_service
+
+  frontend:
+    build: ./frontend
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api
+    ports:
+      - "3000:3000"
+    depends_on: [api_gateway]
+
+volumes:
+  mongo_data:
+  reports_data:
